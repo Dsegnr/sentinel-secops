@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block content %}
+<p class="muted"><a href="/kb">← 知识库</a> · <span class="mono">{{ rel }}</span></p>
+<article class="doc">{{ body | safe }}</article>
+{% endblock %}

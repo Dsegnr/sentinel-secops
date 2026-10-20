@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<p class="muted">
+  <a href="/cases">← 案件库</a> · <span class="mono">{{ name }}</span>
+  {% if all_ok is not none %}
+    · {% if all_ok %}<span class="badge ok">证据清单校验通过</span>{% else %}<span class="badge bad">证据清单校验失败</span>{% endif %}
+  {% endif %}
+</p>
+<p class="actions">
+  <a class="btn" href="/cases/export?name={{ name | urlencode }}&amp;format=html">导出 HTML</a>
+  <a class="btn alt" href="/cases/export?name={{ name | urlencode }}&amp;format=html&amp;template=brief">简报</a>
+  <a class="btn alt" href="/cases/export?name={{ name | urlencode }}&amp;format=html&amp;template=evidence">证据版</a>
+  <a class="btn alt" href="/cases/export?name={{ name | urlencode }}&amp;format=md">Markdown</a>
+</p>
+<details class="card">
+  <summary>登记为发现（进入发现管理，跟踪处理状态）</summary>
+  <form method="post" action="/findings/new">
+    <input type="hidden" name="case" value="{{ name }}">
+    <input name="title" placeholder="发现标题" value="来自案件 {{ name }} 的发现">
+    <div class="row">
+      <select name="severity">{% for s in severities %}<option value="{{ s }}">{{ s }}</option>{% endfor %}</select>
+      <input name="asset_value" placeholder="资产值（留空 = 从案件自动提取目标）">
+    </div>
+    <textarea name="detail" rows="3" placeholder="描述（可选）"></textarea>
+    <button>创建发现</button>
+  </form>
+</details>
+{% if rows %}
+<h2>证据清单（SHA-256）</h2>
+<table class="table">
+  <thead><tr><th>文件</th><th>校验</th></tr></thead>
+  <tbody>
+    {% for r in rows %}
+    <tr><td class="mono">{{ r.path }}</td><td>{% if r.ok %}<span class="badge ok">OK</span>{% else %}<span class="badge bad">FAIL</span>{% endif %}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+<article class="doc">{{ body | safe }}</article>
+{% endblock %}

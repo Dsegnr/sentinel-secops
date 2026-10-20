@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+{% if error %}
+<div class="banner bad">{{ error }}</div>
+<p><a href="/triage">← 返回研判台</a></p>
+{% else %}
+<div class="result-head">
+  <h1>研判报告 · {{ r.kind }} · <span class="mono">{{ r.target }}</span></h1>
+  <p class="muted">{{ r.created_at }}{% if case_dir %} · 已落档 <span class="mono">{{ case_dir }}</span>{% endif %}</p>
+</div>
+
+<div class="actions">
+  <a class="btn alt" href="/triage">← 再查一个</a>
+  {% if case_name %}<a class="btn alt" href="/cases/export?name={{ case_name | urlencode }}&format=html">导出报告(HTML)</a>{% endif %}
+  {% if case_dir %}<a class="btn alt" href="/cases">去案件库 →</a>{% endif %}
+  {% if r.kind == 'ip' %}
+  <form method="post" action="/blocklist/custom/add" style="display:inline">
+    <input type="hidden" name="value" value="{{ r.target }}">
+    <button class="copy">➕ 把 {{ r.target }} 加入封堵清单</button>
+  </form>
+  {% endif %}
+</div>
+
+<h2>结论字段</h2>
+<table class="table">
+  <thead><tr><th>字段</th><th>值</th><th>置信度</th><th>来源</th></tr></thead>
+  <tbody>
+    {% for f in r.findings %}
+    <tr>
+      <td>{{ f.key }}</td>
+      <td>{{ f.value }}</td>
+      <td><span class="badge conf-{{ f.conf }}">{{ f.conf }}</span></td>
+      <td class="muted">{{ f.source }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>数据源状态</h2>
+<table class="table">
+  <thead><tr><th>源</th><th>状态</th><th>说明</th></tr></thead>
+  <tbody>
+    {% for s in r.sources %}
+    <tr>
+      <td>{{ s.source }}</td>
+      <td>{% if s.ok %}<span class="badge ok">OK</span>{% else %}<span class="badge bad">FAIL</span>{% endif %}</td>
+      <td class="muted">{{ s.note }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if r.notes %}
+<h2>备注与建议</h2>
+{% for n in r.notes %}<div class="kv-note muted">{{ n }}</div>{% endfor %}
+{% endif %}
+
+<h2>🤖 AI 解读</h2>
+{% if ai_text %}
+<div class="card"><p style="white-space:pre-wrap">{{ ai_text }}</p></div>
+{% elif ai_error %}
+<div class="banner bad">{{ ai_error }}</div>
+{% else %}
+<p class="muted">把报告中的公开数据交给模型做综述与防守建议（工具管事实、模型管推理）。</p>
+{% endif %}
+{% if case_name %}
+<form method="post" action="/ai/explain">
+  <input type="hidden" name="case" value="{{ case_name }}">
+  <button>🤖 让 AI 解读这份报告</button>
+</form>
+{% endif %}
+
+{% if search_links %}
+<h2>🔗 公开搜索直达</h2>
+<p class="muted">封闭生态（微信 / QQ 客户端内、微博登录墙等）无法自动探测；下列入口一键到公开搜索页查公开提及（新窗口打开）：</p>
+<p class="actions">
+  {% for l in search_links %}<a class="btn alt" href="{{ l.url }}" target="_blank" rel="noreferrer">{{ l.name }}</a>{% endfor %}
+</p>
+{% endif %}
+{% endif %}
+{% endblock %}

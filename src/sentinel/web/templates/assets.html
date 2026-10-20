@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>资产台账</h1>
+<p class="muted">域名 / IP / 号码 / 主机 / 账号：统一档案，关联案件与发现。</p>
+
+<div class="card">
+  <h2>新建资产</h2>
+  <form method="post" action="/assets/new">
+    <div class="row">
+      <select name="type">{% for t in types %}<option value="{{ t }}">{{ t }}</option>{% endfor %}</select>
+      <input name="value" placeholder="值（如 example.com / 1.2.3.4）" required>
+      <input name="label" placeholder="别名 / 说明（可选）">
+    </div>
+    <input name="tags" placeholder="标签（逗号分隔，可选）">
+    <textarea name="note" rows="2" placeholder="备注（可选）"></textarea>
+    <button>登记</button>
+  </form>
+</div>
+
+<form method="get" action="/assets" class="row">
+  <select name="type"><option value="">全部类型</option>{% for t in types %}<option value="{{ t }}" {{ 'selected' if filter_type == t else '' }}>{{ t }}</option>{% endfor %}</select>
+  <button>筛选</button>
+</form>
+
+<table class="table">
+  <thead><tr><th>资产</th><th>类型</th><th>标签</th><th>关联案件</th><th>更新时间</th></tr></thead>
+  <tbody>
+    {% for a in assets %}
+    <tr>
+      <td><a href="/assets/view?id={{ a.id }}">{{ a.label or a.value }}</a><div class="muted mono">{{ a.value }}</div></td>
+      <td><span class="badge">{{ a.type }}</span></td>
+      <td class="muted">{{ a.tags | join(', ') }}</td>
+      <td class="muted">{{ a.cases | length }}</td>
+      <td class="muted">{{ a.updated_at }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

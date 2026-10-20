@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>每日摘要</h1>
+<p class="muted">把「案件 / 发现 / 基线 / 封堵清单 / 数据源 / 巡检」汇总成一页值班摘要；配置 webhook 后会同时推送。定时生成：<span class="mono">monitor.digest_hour</span>（默认 9 点，-1 关闭）。</p>
+
+{% if started %}<div class="banner ok">摘要任务已提交，稍后刷新本页查看。</div>{% endif %}
+{% if running %}<div class="banner warn">摘要正在生成中，完成后刷新即可。</div>{% endif %}
+
+<p><form method="post" action="/digest/run"><button>生成并推送摘要</button></form></p>
+
+{% if not digest %}
+<div class="banner warn">还没有摘要。点上方按钮生成；或保持工作台运行，每天 {{ '9' }} 点后自动生成。</div>
+{% else %}
+<p class="muted">最近生成：{{ digest.when | replace('T', ' ') }} · 统计窗口 {{ digest.window_hours }} 小时</p>
+
+<div class="kpis">
+  <div class="kpi"><div class="num">{{ digest.cases.recent }}</div><div class="lbl">窗口内新增案件</div></div>
+  <div class="kpi {{ 'bad' if digest.findings.by_severity.get('high') or digest.findings.by_severity.get('critical') else '' }}"><div class="num">{{ digest.findings.open }}</div><div class="lbl">待处理发现</div></div>
+  <div class="kpi"><div class="num">{{ digest.baseline.diff_changes if digest.baseline else '—' }}</div><div class="lbl">基线变化处</div></div>
+  <div class="kpi"><div class="num">{{ (digest.baseline.issues | length) if digest.baseline else '—' }}</div><div class="lbl">待加固项</div></div>
+</div>
+
+<div class="grid-2">
+  <div class="stack">
+    <div class="card">
+      <h2>🛡 主机与封堵</h2>
+      {% if digest.baseline %}
+      <p>基线：{{ digest.baseline.captured or digest.baseline.file }}{% if digest.baseline.diff_changes %} · 较上版变化 {{ digest.baseline.diff_changes }} 处{% endif %}</p>
+      {% if digest.baseline.issues %}<ul class="tight muted">{% for i in digest.baseline.issues %}<li>{{ i }}</li>{% endfor %}</ul>{% else %}<p class="muted">✔ 无待加固项</p>{% endif %}
+      {% else %}<p class="muted">尚未体检。</p>{% endif %}
+      <p class="muted">封堵清单：{% if digest.blocklist.age_hours is none %}尚未同步（去 <a href="/blocklist">更新</a>）{% else %}{{ '%.0f' | format(digest.blocklist.age_hours) }} 小时前更新{% endif %}</p>
+      <p class="muted">数据源：{% if digest.health %}{{ digest.health.ok }}/{{ digest.health.total }} 可用（{{ digest.health.when[:16] }}）{% else %}未检测{% endif %}</p>
+    </div>
+    <div class="card">
+      <h2>⚙️ 巡检</h2>
+      {% if digest.last_patrol %}
+      <p>{{ digest.last_patrol.finished }} · <span class="badge {{ 'ok' if digest.last_patrol.status == 'done' else 'bad' }}">{{ digest.last_patrol.status }}</span></p>
+      {% if digest.last_patrol.result %}<p class="muted mono">{{ digest.last_patrol.result }}</p>{% endif %}
+      {% else %}<p class="muted">未运行过巡检。</p>{% endif %}
+      <p><a href="/tasks">任务队列 →</a></p>
+    </div>
+  </div>
+  <div class="stack">
+    <div class="card">
+      <h2>🚨 待处理发现（{{ digest.findings.open }}）</h2>
+      {% if digest.findings.top %}
+      <ul class="tight">{% for f in digest.findings.top %}<li><span class="badge sev-{{ f.severity }}">{{ f.severity }}</span> {{ f.title }}</li>{% endfor %}</ul>
+      {% else %}<p class="muted">没有待处理发现。</p>{% endif %}
+      <p><a href="/findings">去处理 →</a></p>
+    </div>
+    <div class="card">
+      <h2>🗂 新增案件</h2>
+      {% if digest.cases.kinds %}
+      <p>{% for k, v in digest.cases.kinds.items() %}<span class="chip">{{ k }} × {{ v }}</span> {% endfor %}</p>
+      {% else %}<p class="muted">窗口内没有新案件。</p>{% endif %}
+      <p><a href="/cases">案件库 →</a></p>
+    </div>
+  </div>
+</div>
+
+<details class="card">
+  <summary>原始摘要文本（webhook 推送内容）</summary>
+  <pre class="log">{{ digest_text }}</pre>
+</details>
+{% endif %}
+{% endblock %}

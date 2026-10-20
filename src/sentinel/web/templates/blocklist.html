@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>封堵清单</h1>
+<p class="muted">
+  把公益威胁情报 IP 清单（FireHOL level1 / Spamhaus DROP）同步到本地，用于：IP 研判时自动比对命中、
+  按需导出 Windows 防火墙批量封堵脚本。清单为公开数据，存在误报可能，脚本请审阅后再执行。
+</p>
+
+{% if updated %}<div class="banner ok">更新结果：{{ updated }}</div>{% endif %}
+
+<div class="kpis">
+  <div class="kpi"><div class="num">{{ total }}</div><div class="lbl">本地网段总数</div></div>
+  {% for s in stats %}
+  <div class="kpi"><div class="num">{{ s.count if s.downloaded else '—' }}</div><div class="lbl">{{ s.title }}{% if s.updated %} · {{ s.updated }}{% endif %}</div></div>
+  {% endfor %}
+</div>
+
+<div class="cards">
+  <div class="card">
+    <h2>⬇️ 更新清单</h2>
+    <p class="muted">从 jsDelivr / 官方镜像拉取最新清单（约 5-10 秒）。</p>
+    <form method="post" action="/blocklist/update"><button>立即更新</button></form>
+  </div>
+  <div class="card">
+    <h2>🔎 查询 IP 是否在清单内</h2>
+    <form method="post" action="/blocklist/check">
+      <input name="ip" placeholder="例如 1.2.3.4" required>
+      <button>查询</button>
+    </form>
+    {% if check_error %}
+    <div class="banner bad">{{ check_error }}</div>
+    {% elif hits is not none %}
+      {% if hits %}
+      <div class="banner bad">命中 {{ hits | length }} 条：{% for h in hits %}{{ h.source }} · <span class="mono">{{ h.cidr }}</span>{% if not loop.last %}；{% endif %}{% endfor %}</div>
+      {% else %}
+      <div class="banner ok">{{ checked }} 未命中本地清单。</div>
+      {% endif %}
+    {% endif %}
+  </div>
+  <div class="card">
+    <h2>📤 导出</h2>
+    <p><a class="btn" href="/blocklist/export?kind=ps1">Windows 防火墙脚本 (.ps1)</a></p>
+    <p><a class="btn alt" href="/blocklist/export?kind=csv">全部网段 (.csv)</a></p>
+    <p class="field-hint">脚本用法：管理员 PowerShell 运行；卸载命令：<span class="mono">Remove-NetFirewallRule -Group 'Sentinel-Blocklist'</span></p>
+  </div>
+</div>
+
+<h2>自定义封堵</h2>
+<div class="grid-2">
+  <div class="card">
+    <h3>添加条目</h3>
+    <form method="post" action="/blocklist/custom/add">
+      <input name="value" placeholder="IP 或 CIDR，例如 203.0.113.7 或 203.0.113.0/24" required>
+      <button>加入清单</button>
+    </form>
+    <p class="field-hint">自定义条目会一并进入 IP 研判的命中比对与防火墙脚本 / CSV 导出；清单"更新"不会覆盖它。</p>
+  </div>
+  <div class="card">
+    <h3>已添加（{{ custom | length }}）</h3>
+    {% if custom %}
+    <ul class="list">
+      {% for c in custom %}
+      <li>
+        <span class="mono">{{ c }}</span>
+        <form method="post" action="/blocklist/custom/remove" style="display:inline">
+          <input type="hidden" name="value" value="{{ c }}">
+          <button class="copy" style="margin-left:8px">移除</button>
+        </form>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="muted">还没有自定义条目。研判结果页也可以一键加入。</p>
+    {% endif %}
+  </div>
+</div>
+
+<h2>清单来源</h2>
+<table class="table">
+  <thead><tr><th>来源</th><th>状态</th><th>条目</th><th>更新时间</th><th>SHA-256</th><th>主页</th></tr></thead>
+  <tbody>
+    {% for s in stats %}
+    <tr>
+      <td>{{ s.title }}</td>
+      <td>{% if s.downloaded %}<span class="badge ok">已同步</span>{% else %}<span class="badge bad">未下载</span>{% endif %}{% if s.error %} <span class="badge bad">{{ s.error[:50] }}</span>{% endif %}</td>
+      <td>{{ s.count }}</td>
+      <td class="muted">{{ s.updated or '-' }}</td>
+      <td class="mono muted">{{ s.sha256 or '-' }}</td>
+      <td><a href="{{ s.home }}" target="_blank" rel="noreferrer">官网</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>说明与边界</h2>
+<ul class="tight muted">
+  <li>封堵清单是"批量降低风险"，不能替代逐案研判；命中也不代表该 IP 此刻仍在攻击。</li>
+  <li>FireHOL level1 聚合多源、误报率较低；Spamhaus DROP 主要覆盖被劫持/垃圾邮件网段。两者都含少量保留网段条目，属正常现象。</li>
+  <li>Windows 防火墙规则按 500 条/组拆分，避免单条规则过大导致加载缓慢。</li>
+</ul>
+{% endblock %}

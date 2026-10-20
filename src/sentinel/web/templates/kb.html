@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>知识库</h1>
+<form method="get" action="/kb" class="searchbar">
+  <input name="q" value="{{ q }}" placeholder="全文搜索：提示词注入 / API剑 / Wazuh ...">
+  <button>搜索</button>
+</form>
+{% if q %}
+  <p class="muted">「{{ q }}」共 {{ results | length }} 条结果</p>
+  <ul class="list">
+  {% for r in results %}
+    <li>
+      <a href="/kb/view?path={{ r.rel | urlencode }}">{{ r.title }}</a>
+      <span class="muted mono">{{ r.rel }}</span>
+      {% if r.snippet %}<div class="muted snippet">{{ r.snippet }}</div>{% endif %}
+    </li>
+  {% endfor %}
+  </ul>
+{% else %}
+  {% for g, items in groups.items() %}
+  <h2>{{ g }}</h2>
+  <ul class="list">
+    {% for it in items %}<li><a href="/kb/view?path={{ it.rel | urlencode }}">{{ it.name }}</a></li>{% endfor %}
+  </ul>
+  {% endfor %}
+{% endif %}
+{% endblock %}

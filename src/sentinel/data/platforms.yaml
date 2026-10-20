@@ -1,0 +1,1420 @@
+# 用户名探活平台清单（自动生成，勿手改；改数据请改 checks/build_platforms.py 后重建）
+# 来源: Sherlock (MIT, sherlock-project/sherlock) + Maigret (MIT, soxoj/maigret)
+# 生成: 2026-10-11 · 共 75 项（cn 29 / global 44 / custom 5）
+# 启用规则: 必须经 checks/verify_platforms.py 用官方样本实机验证通过（enabled: true）。
+platforms:
+- name: CSDN
+  category: 技术
+  url: https://blog.csdn.net/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers:
+  - data-username="
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: csdnnews
+  sample_missing: noonewouldeverusethis7
+  source: custom
+  note: 有 TLS 指纹风控，可能需重试；有反爬风控；已验证 2026-10-11
+- name: Weibo
+  category: 社交
+  url: https://weibo.com/n/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers:
+  - '{"ok":1,"data":{"user":'
+  missing_markers:
+  - 该昵称当前没有人使用
+  allow_redirects: true
+  enabled: false
+  sample_ok: clairekuo
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: '有反爬风控（验证未通过 2026-10-11: failed）'
+- name: Zhihu
+  category: 社区
+  url: https://www.zhihu.com/api/v4/members/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers:
+  - '"url_token"'
+  missing_markers:
+  - 用户不存在
+  allow_redirects: true
+  enabled: true
+  sample_ok: kaifulee
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: 有 TLS 指纹风控，可能需重试；已验证 2026-10-11
+- name: Douban
+  category: 社区
+  url: https://www.douban.com/people/{u}/
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers:
+  - db-usr-profile
+  missing_markers:
+  - 返回首页
+  allow_redirects: true
+  enabled: true
+  sample_ok: darkmage
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: 已验证 2026-10-11
+- name: Gitee
+  category: 技术
+  url: https://gitee.com/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: wizzer
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: 已验证 2026-10-11
+- name: Juejin
+  category: 技术
+  url: https://juejin.cn/user/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers:
+  - '"user_name":'
+  - '"user_id":'
+  missing_markers:
+  - '"user_id":"0"'
+  allow_redirects: true
+  enabled: false
+  sample_ok: '1556564194374926'
+  sample_missing: '999999999999'
+  source: maigret
+  note: '（验证未通过 2026-10-11: failed）'
+- name: NetEase Music
+  category: 音乐
+  url: https://music.163.com/user/home?id={u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers:
+  - '"nickname":'
+  - '"userId":'
+  missing_markers:
+  - '{"code":404}'
+  allow_redirects: true
+  enabled: false
+  sample_ok: '1'
+  sample_missing: '999999999999'
+  source: maigret
+  note: '（验证未通过 2026-10-11: failed）'
+- name: QQ
+  category: 社交
+  url: https://user.qzone.qq.com/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers:
+  - portraitCallBack(
+  missing_markers:
+  - '"",0]'
+  - '"error"'
+  allow_redirects: true
+  enabled: false
+  sample_ok: '10001'
+  sample_missing: '3999999999'
+  source: maigret
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Bilibili
+  category: 视频
+  url: https://api.bilibili.com/x/web-interface/card?mid={u}
+  ok_status:
+  - 200
+  missing_status: []
+  present_markers:
+  - '"code":0'
+  missing_markers:
+  - '"code":-404'
+  allow_redirects: true
+  enabled: true
+  sample_ok: '2'
+  sample_missing: '999999999999'
+  source: custom
+  note: 已验证 2026-10-11
+- name: Tuchong
+  category: 摄影
+  url: https://{u}.tuchong.com/
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers:
+  - '- 图博 - 图虫'
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: foto
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: 已验证（仅存在判定） 2026-10-11
+- name: Baidu
+  category: 社区
+  url: https://tieba.baidu.com/i/sys/user_json?un={u}&ie=utf-8
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers:
+  - '"raw_name"'
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: maigret
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: 已验证（仅存在判定） 2026-10-11
+- name: GitCode
+  category: 技术
+  url: https://gitcode.com/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers:
+  - AtomGit | GitCode
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: chatgpt
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Yuque
+  category: 文档
+  url: https://www.yuque.com/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: yuque
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: 已验证 2026-10-11
+- name: LeetCode CN
+  category: 技术
+  url: https://leetcode.cn/u/{u}/
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers:
+  - '"userAvatar"'
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: leetcode
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: 已验证（仅存在判定） 2026-10-11
+- name: NGA
+  category: 论坛
+  url: https://bbs.nga.cn/nuke.php?func=ucp&username={u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers:
+  - __UCPUSER
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: admin
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: 已验证（仅存在判定） 2026-10-11
+- name: Moegirl
+  category: 百科
+  url: https://zh.moegirl.org.cn/User:{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: 零
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: 有 TLS 指纹风控，可能需重试；已验证 2026-10-11
+- name: cnblogs.com
+  category: 博客
+  url: https://www.cnblogs.com/{u}/
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: adam
+  sample_missing: noonewouldeverusethis7
+  source: custom
+  note: 已验证 2026-10-11
+- name: v2ex.com
+  category: 其他
+  url: https://v2ex.com/member/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: adam
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Ruby China
+  category: 技术
+  url: https://ruby-china.org/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: huacnlee
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: 已验证 2026-10-11
+- name: OpenI
+  category: AI
+  url: https://openi.pcl.ac.cn/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: OpenI
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: 已验证 2026-10-11
+- name: openKylin
+  category: 技术
+  url: https://bbs.openkylin.top/u/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: openkylin
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: 已验证 2026-10-11
+- name: KubeSphere Community
+  category: 技术
+  url: https://ask.kubesphere.com.cn/forum/u/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: kubesphere
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: 已验证 2026-10-11
+- name: Honor Club
+  category: 社区
+  url: https://club.honor.com/cn/space-username-{u}.html
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers:
+  - 的个人资料
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: admin
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: 已验证（仅存在判定） 2026-10-11
+- name: AskTUG
+  category: 技术
+  url: https://asktug.com/u/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: tidb
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: 已验证 2026-10-11
+- name: Cocos Community
+  category: 游戏开发
+  url: https://forum.cocos.org/u/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: jare
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: 已验证 2026-10-11
+- name: Sina Blog
+  category: 博客
+  url: https://blog.sina.com.cn/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: laoxu
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: 已验证 2026-10-11
+- name: bbs.aw-ol.com
+  category: 技术
+  url: https://bbs.aw-ol.com/user/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: yuzukitsuru
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: 已验证 2026-10-11
+- name: bbs.zkaq.cn
+  category: 社区
+  url: https://bbs.zkaq.cn/u/{u}.html
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers:
+  - class="user-avatar"
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: Track-聂风
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: 已验证（仅存在判定） 2026-10-11
+- name: iteye.com
+  category: 技术
+  url: https://www.iteye.com/blog/user/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: aqi00
+  sample_missing: noonewouldeverusethis7
+  source: maigret
+  note: 已验证 2026-10-11
+- name: GitHub
+  category: 技术
+  url: https://www.github.com/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: 已验证 2026-10-11
+- name: GitLab
+  category: 技术
+  url: https://gitlab.com/{u}
+  ok_status:
+  - 200
+  missing_status: []
+  present_markers: []
+  missing_markers:
+  - '['
+  - ']'
+  allow_redirects: true
+  enabled: false
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Reddit
+  category: 社区
+  url: https://www.reddit.com/user/{u}
+  ok_status:
+  - 200
+  missing_status: []
+  present_markers: []
+  missing_markers:
+  - S
+  - o
+  - r
+  - r
+  - y
+  - ','
+  - ' '
+  - n
+  - o
+  - b
+  - o
+  - d
+  - y
+  - ' '
+  - o
+  - n
+  - ' '
+  - R
+  - e
+  - d
+  - d
+  - i
+  - t
+  - ' '
+  - g
+  - o
+  - e
+  - s
+  - ' '
+  - b
+  - y
+  - ' '
+  - t
+  - h
+  - a
+  - t
+  - ' '
+  - n
+  - a
+  - m
+  - e
+  - .
+  allow_redirects: true
+  enabled: false
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: YouTube
+  category: 视频
+  url: https://www.youtube.com/@{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: youtube
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Twitch
+  category: 社交
+  url: https://www.twitch.tv/{u}
+  ok_status:
+  - 200
+  missing_status: []
+  present_markers: []
+  missing_markers:
+  - c
+  - o
+  - n
+  - t
+  - e
+  - n
+  - t
+  - '='
+  - ''''
+  - T
+  - w
+  - i
+  - t
+  - c
+  - h
+  - ' '
+  - i
+  - s
+  - ' '
+  - t
+  - h
+  - e
+  - ' '
+  - w
+  - o
+  - r
+  - l
+  - d
+  - '&'
+  - '#'
+  - '3'
+  - '9'
+  - ;
+  - s
+  - ' '
+  - l
+  - e
+  - a
+  - d
+  - i
+  - n
+  - g
+  - ' '
+  - v
+  - i
+  - d
+  - e
+  - o
+  - ' '
+  - p
+  - l
+  - a
+  - t
+  - f
+  - o
+  - r
+  - m
+  - ' '
+  - a
+  - n
+  - d
+  - ' '
+  - c
+  - o
+  - m
+  - m
+  - u
+  - n
+  - i
+  - t
+  - y
+  - ' '
+  - f
+  - o
+  - r
+  - ' '
+  - g
+  - a
+  - m
+  - e
+  - r
+  - s
+  - .
+  - ''''
+  allow_redirects: true
+  enabled: false
+  sample_ok: xqc
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Telegram
+  category: 社交
+  url: https://t.me/{u}
+  ok_status:
+  - 200
+  missing_status: []
+  present_markers: []
+  missing_markers:
+  - <title>Telegram Messenger</title>
+  - If you have <strong>Telegram</strong>, you can contact <a class="tgme_username_link" href="tg://resolve?domain=
+  allow_redirects: true
+  enabled: false
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Pinterest
+  category: 社交
+  url: https://www.pinterest.com/{u}/
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Medium
+  category: 社交
+  url: https://medium.com/@{u}
+  ok_status:
+  - 200
+  missing_status: []
+  present_markers: []
+  missing_markers:
+  - <
+  - b
+  - o
+  - d
+  - y
+  allow_redirects: true
+  enabled: false
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Keybase
+  category: 安全
+  url: https://keybase.io/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: 已验证 2026-10-11
+- name: HackerNews
+  category: 社交
+  url: https://news.ycombinator.com/user?id={u}
+  ok_status:
+  - 200
+  missing_status: []
+  present_markers: []
+  missing_markers:
+  - No such user.
+  - Sorry.
+  allow_redirects: true
+  enabled: false
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Docker Hub
+  category: 技术
+  url: https://hub.docker.com/u/{u}/
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: PyPi
+  category: 社交
+  url: https://pypi.org/user/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: Blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: npm
+  category: 技术
+  url: https://www.npmjs.com/~{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: kennethsweezy
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: BitBucket
+  category: 社交
+  url: https://bitbucket.org/{u}/
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: white
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: SourceForge
+  category: 技术
+  url: https://sourceforge.net/u/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: 已验证 2026-10-11
+- name: SoundCloud
+  category: 社交
+  url: https://soundcloud.com/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Spotify
+  category: 社交
+  url: https://open.spotify.com/user/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Strava
+  category: 社交
+  url: https://www.strava.com/athletes/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Roblox
+  category: 社交
+  url: https://www.roblox.com/user.aspx?username={u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: bluewolfekiller
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Behance
+  category: 社交
+  url: https://www.behance.net/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: DeviantArt
+  category: 社交
+  url: https://www.deviantart.com/{u}
+  ok_status:
+  - 200
+  missing_status: []
+  present_markers: []
+  missing_markers:
+  - L
+  - l
+  - a
+  - m
+  - a
+  - ' '
+  - N
+  - o
+  - t
+  - ' '
+  - F
+  - o
+  - u
+  - n
+  - d
+  allow_redirects: true
+  enabled: false
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Dribbble
+  category: 社交
+  url: https://dribbble.com/{u}
+  ok_status:
+  - 200
+  missing_status: []
+  present_markers: []
+  missing_markers:
+  - W
+  - h
+  - o
+  - o
+  - p
+  - s
+  - ','
+  - ' '
+  - t
+  - h
+  - a
+  - t
+  - ' '
+  - p
+  - a
+  - g
+  - e
+  - ' '
+  - i
+  - s
+  - ' '
+  - g
+  - o
+  - n
+  - e
+  - .
+  allow_redirects: true
+  enabled: false
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Flickr
+  category: 社交
+  url: https://www.flickr.com/people/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: tumblr
+  category: 社交
+  url: https://{u}.tumblr.com/
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: goku
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Vimeo
+  category: 社交
+  url: https://vimeo.com/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Wattpad
+  category: 社交
+  url: https://www.wattpad.com/user/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: Dogstho7951
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Codepen
+  category: 社交
+  url: https://codepen.io/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: LeetCode
+  category: 技术
+  url: https://leetcode.com/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Kaggle
+  category: 数据
+  url: https://www.kaggle.com/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: dansbecker
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: 已验证 2026-10-11
+- name: HackerOne
+  category: 技术
+  url: https://hackerone.com/{u}
+  ok_status:
+  - 200
+  missing_status: []
+  present_markers: []
+  missing_markers:
+  - P
+  - a
+  - g
+  - e
+  - ' '
+  - n
+  - o
+  - t
+  - ' '
+  - f
+  - o
+  - u
+  - n
+  - d
+  allow_redirects: true
+  enabled: false
+  sample_ok: stok
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: BugCrowd
+  category: 社交
+  url: https://bugcrowd.com/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: ppfeister
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: About.me
+  category: 社交
+  url: https://about.me/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Duolingo
+  category: 社交
+  url: https://www.duolingo.com/profile/{u}
+  ok_status:
+  - 200
+  missing_status: []
+  present_markers: []
+  missing_markers:
+  - '{'
+  - '"'
+  - u
+  - s
+  - e
+  - r
+  - s
+  - '"'
+  - ':'
+  - '['
+  - ']'
+  - '}'
+  allow_redirects: true
+  enabled: false
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: MyAnimeList
+  category: 动漫
+  url: https://myanimelist.net/profile/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: 已验证 2026-10-11
+- name: ProductHunt
+  category: 社交
+  url: https://www.producthunt.com/@{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: jenny
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Instagram
+  category: 社交
+  url: https://instagram.com/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: instagram
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: TikTok
+  category: 社交
+  url: https://www.tiktok.com/@{u}
+  ok_status:
+  - 200
+  missing_status: []
+  present_markers: []
+  missing_markers:
+  - '"statusCode":10221'
+  - Govt. of India decided to block 59 apps
+  allow_redirects: true
+  enabled: false
+  sample_ok: charlidamelio
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: threads
+  category: 社交
+  url: https://www.threads.net/@{u}
+  ok_status:
+  - 200
+  missing_status: []
+  present_markers: []
+  missing_markers:
+  - <
+  - t
+  - i
+  - t
+  - l
+  - e
+  - '>'
+  - T
+  - h
+  - r
+  - e
+  - a
+  - d
+  - s
+  - ' '
+  - •
+  - ' '
+  - L
+  - o
+  - g
+  - ' '
+  - i
+  - n
+  - <
+  - /
+  - t
+  - i
+  - t
+  - l
+  - e
+  - '>'
+  allow_redirects: true
+  enabled: false
+  sample_ok: zuck
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Bluesky
+  category: 社交
+  url: https://bsky.app/profile/{u}.bsky.social
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: mcuban
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Snapchat
+  category: 社交
+  url: https://www.snapchat.com/add/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: teamsnapchat
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Wakatime
+  category: 技术
+  url: https://wakatime.com/@{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: true
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: 已验证 2026-10-11
+- name: Archive of Our Own
+  category: 社交
+  url: https://archiveofourown.org/users/{u}
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: test
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Anilist
+  category: 社交
+  url: https://anilist.co/user/{u}/
+  ok_status:
+  - 200
+  missing_status:
+  - 404
+  present_markers: []
+  missing_markers: []
+  allow_redirects: true
+  enabled: false
+  sample_ok: Josh
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: Letterboxd
+  category: 社交
+  url: https://letterboxd.com/{u}
+  ok_status:
+  - 200
+  missing_status: []
+  present_markers: []
+  missing_markers:
+  - S
+  - o
+  - r
+  - r
+  - y
+  - ','
+  - ' '
+  - w
+  - e
+  - ' '
+  - c
+  - a
+  - n
+  - ’
+  - t
+  - ' '
+  - f
+  - i
+  - n
+  - d
+  - ' '
+  - t
+  - h
+  - e
+  - ' '
+  - p
+  - a
+  - g
+  - e
+  - ' '
+  - y
+  - o
+  - u
+  - ’
+  - v
+  - e
+  - ' '
+  - r
+  - e
+  - q
+  - u
+  - e
+  - s
+  - t
+  - e
+  - d
+  - .
+  allow_redirects: true
+  enabled: false
+  sample_ok: blue
+  sample_missing: noonewouldeverusethis7
+  source: sherlock
+  note: '（验证未通过 2026-10-11: failed）'
+- name: QQ 号（头像探活）
+  category: 社交
+  check: qq_avatar
+  url: https://q1.qlogo.cn/g?b=qq&nk={u}&s=100
+  enabled: true
+  sample_ok: '10001'
+  sample_missing: '3999999999'
+  source: custom
+  note: 仅数字 QQ 号。有公开头像=命中；默认头像=无法判定（可能未注册，也可能未设头像）。；已验证（仅存在判定） 2026-10-11
+- name: 网易云音乐
+  category: 音乐
+  url: https://music.163.com/api/v1/user/detail/{u}
+  ok_status:
+  - 200
+  missing_status: []
+  present_markers:
+  - '"identify"'
+  missing_markers:
+  - '"code":404'
+  allow_redirects: true
+  enabled: true
+  sample_ok: '1'
+  sample_missing: '999999999999'
+  source: custom
+  note: 仅支持数字用户 ID。；已验证 2026-10-11

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<p class="muted"><a href="/assets">← 资产台账</a> · <span class="mono">{{ asset.id }}</span></p>
+<h1>{{ asset.label or asset.value }}</h1>
+<p class="muted">{{ asset.type }} · <span class="mono">{{ asset.value }}</span> · 更新于 {{ asset.updated_at }}</p>
+
+{% if asset.note %}
+<div class="card"><p style="white-space:pre-wrap">{{ asset.note }}</p></div>
+{% endif %}
+
+<h2>针对该资产新建发现</h2>
+<form method="post" action="/findings/new" class="card">
+  <input type="hidden" name="asset_value" value="{{ asset.value }}">
+  <input type="hidden" name="asset_type" value="{{ asset.type }}">
+  <input name="title" placeholder="发现标题" required>
+  <div class="row">
+    <select name="severity">{% for s in severities %}<option value="{{ s }}">{{ s }}</option>{% endfor %}</select>
+    <button>创建发现</button>
+  </div>
+</form>
+
+<h2>关联案件（{{ asset.cases | length }}）</h2>
+<ul class="list">
+  {% for c in asset.cases %}<li><a href="/cases/view?name={{ c | urlencode }}">{{ c }}</a></li>{% endfor %}
+</ul>
+
+<h2>关联发现（{{ findings | length }}）</h2>
+<table class="table">
+  <thead><tr><th>发现</th><th>严重性</th><th>状态</th><th>更新时间</th></tr></thead>
+  <tbody>
+    {% for f in findings %}
+    <tr>
+      <td>{{ f.title }}<div class="muted mono">{{ f.id }}</div></td>
+      <td><span class="badge sev-{{ f.severity }}">{{ f.severity }}</span></td>
+      <td><span class="badge">{{ f.status }}</span></td>
+      <td class="muted">{{ f.updated_at }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

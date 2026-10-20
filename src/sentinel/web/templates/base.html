@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Sentinel 工作台{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css?v={{ static_v() }}">
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">🛡 <b>Sentinel</b> <span class="muted">v{{ version }}</span></div>
+    <nav>
+      <div class="nav-group"><span>值守</span>
+        <a href="/" class="{{ 'on' if active=='home' else '' }}">总览</a>
+        <a href="/digest" class="{{ 'on' if active=='digest' else '' }}">每日摘要</a>
+        <a href="/findings" class="{{ 'on' if active=='findings' else '' }}">发现管理</a>
+      </div>
+      <div class="nav-group"><span>研判</span>
+        <a href="/triage" class="{{ 'on' if active=='triage' else '' }}">一键研判</a>
+        <a href="/batch" class="{{ 'on' if active=='batch' else '' }}">批量研判</a>
+        <a href="/blocklist" class="{{ 'on' if active=='blocklist' else '' }}">封堵清单</a>
+        <a href="/sources" class="{{ 'on' if active=='sources' else '' }}">数据源健康</a>
+      </div>
+      <div class="nav-group"><span>主机</span>
+        <a href="/hardening" class="{{ 'on' if active=='hardening' else '' }}">主机加固</a>
+        <a href="/posture" class="{{ 'on' if active=='posture' else '' }}">基线明细</a>
+      </div>
+      <div class="nav-group"><span>案件</span>
+        <a href="/cases" class="{{ 'on' if active=='cases' else '' }}">案件库</a>
+        <a href="/assets" class="{{ 'on' if active=='assets' else '' }}">资产台账</a>
+        <a href="/tasks" class="{{ 'on' if active=='tasks' else '' }}">任务队列</a>
+      </div>
+      <div class="nav-group"><span>知识</span>
+        <a href="/kb" class="{{ 'on' if active=='kb' else '' }}">知识库</a>
+        <a href="/tools" class="{{ 'on' if active=='tools' else '' }}">工具目录</a>
+      </div>
+    </nav>
+    <div class="side-foot muted">本地运行 · 仅公开数据源<br>防御与授权场景</div>
+  </aside>
+  <main class="main">
+{% block content %}{% endblock %}
+    <footer class="foot muted">Sentinel v{{ version }} · 本地工作台 · 所有查询仅基于公开数据源与离线解析</footer>
+  </main>
+</div>
+<script>
+document.querySelectorAll('table.table, .doc table').forEach(function (t) {
+  if (t.parentElement && t.parentElement.classList.contains('tablewrap')) return;
+  var w = document.createElement('div');
+  w.className = 'tablewrap';
+  t.parentNode.insertBefore(w, t);
+  w.appendChild(t);
+});
+document.addEventListener('click', function (event) {
+  var btn = event.target.closest('[data-copy]');
+  if (!btn) return;
+  navigator.clipboard.writeText(btn.getAttribute('data-copy') || '').then(function () {
+    var old = btn.textContent;
+    btn.textContent = '已复制 ✓';
+    setTimeout(function () { btn.textContent = old; }, 1200);
+  });
+});
+</script>
+</body>
+</html>

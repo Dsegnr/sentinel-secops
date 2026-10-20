@@ -1,0 +1,21 @@
+# Public source only; personal knowledge and operational data stay local.
+kb/
+knowledge_base/
+知识库/
+cases/
+data/
+!src/sentinel/data/
+!src/sentinel/data/platforms.yaml
+changes/
+config/config.yaml
+.env
+.env.*
+.secrets/
+.firecrawl/
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+checks/out/

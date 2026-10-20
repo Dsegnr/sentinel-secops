@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>一键研判</h1>
+<p class="muted">
+  数据源：公开数据库 / 官方 API / 离线规则；每次研判自动落档（可勾选不落档）。
+  所有判定分三级置信度：<b>存在 / 未发现 / 无法判定</b>（无法判定 ≠ 不存在）。
+  仅用于防御与授权场景。
+</p>
+<p class="muted">
+  社交足迹对<b>中文 ID 同样可用</b>（自动 URL 编码）；<b>QQ 号</b>可用公开头像端点做存在性探活（有公开头像=命中）。
+  微信 / 微博 / 贴吧为封闭或有风控生态，无法自动探测——结果页提供「公开搜索直达」，一键跳转百度 / 搜狗微信 / 微博 / 知乎手动核查。
+</p>
+
+<h2>研判台</h2>
+<div class="cards">
+  <div class="card">
+    <h2>📞 骚扰电话</h2>
+    <form method="post" action="/triage/phone">
+      <input name="target" placeholder="+8613800138000 或 13800138000" required>
+      <label class="muted"><input type="checkbox" name="no_save"> 不落档</label>
+      <button>研判</button>
+    </form>
+    <p class="field-hint">离线号段解析 + 360 公开归属地 / 运营商交叉；附骚扰处置流程与举报入口。</p>
+  </div>
+  <div class="card">
+    <h2>🌐 可疑 IP</h2>
+    <form method="post" action="/triage/ip">
+      <input name="target" placeholder="8.8.8.8" required>
+      <label class="muted"><input type="checkbox" name="no_save"> 不落档</label>
+      <button>研判</button>
+    </form>
+    <p class="field-hint">地理 / ASN / 开放端口与 CVE / DShield 攻击记录 / 封堵清单命中 / urlscan 公开记录。</p>
+  </div>
+  <div class="card">
+    <h2>👤 社交足迹（用户名 / QQ 号）</h2>
+    <form method="post" action="/triage/user">
+      <input name="target" placeholder="用户名 handle 或 QQ 号（如 10001）" required>
+      <input name="only" placeholder="可选：仅查这些平台，如 github,gitee">
+      <label class="muted"><input type="checkbox" name="no_save"> 不落档</label>
+      <button>探活</button>
+    </form>
+    <p class="field-hint">30+ 平台公开主页探活（已逐一实机验证规则）；同名 ≠ 同一人，需人工交叉核验。</p>
+  </div>
+  <div class="card">
+    <h2>🏷 域名体检</h2>
+    <form method="post" action="/triage/domain">
+      <input name="target" placeholder="example.com" required>
+      <label class="muted"><input type="checkbox" name="no_save"> 不落档</label>
+      <button>体检</button>
+    </form>
+    <p class="field-hint">WHOIS/RDAP、DNS、SPF/DMARC/DKIM、子域（证书透明度）、TLS 证书、安全响应头、urlscan。</p>
+  </div>
+  <div class="card">
+    <h2>🔗 URL 安检</h2>
+    <form method="post" action="/triage/url">
+      <input name="target" placeholder="https://suspicious.example.com/login" required>
+      <label class="muted"><input type="checkbox" name="no_save"> 不落档</label>
+      <button>安检</button>
+    </form>
+    <p class="field-hint">短链展开、重定向链、同形异义 / 品牌仿冒 / 可疑 TLD / 可执行文件等规则；不向第三方提交。</p>
+  </div>
+  <div class="card">
+    <h2>📮 邮箱研判</h2>
+    <form method="post" action="/triage/mailbox">
+      <input name="target" placeholder="name@example.com" required>
+      <label class="muted"><input type="checkbox" name="platforms"> 加做前缀跨平台探活（慢，约 30–60 秒）</label>
+      <label class="muted"><input type="checkbox" name="no_save"> 不落档</label>
+      <button>研判</button>
+    </form>
+    <p class="field-hint">服务商 / 一次性邮箱识别、MX·SPF·DMARC·DKIM、Gravatar 公开头像、举报通道；邮箱实名与绑定手机仅司法调证可得。</p>
+  </div>
+</div>
+
+<h2>自查与取证</h2>
+<div class="cards">
+  <div class="card">
+    <h2>🔑 密码泄露自查</h2>
+    <form method="post" action="/triage/breach">
+      <input type="password" name="target" placeholder="输入你自己的密码" required autocomplete="off">
+      <label class="muted"><input type="checkbox" name="no_save"> 不落档</label>
+      <button>自查</button>
+    </form>
+    <p class="field-hint">k-匿名：只发送 SHA-1 前 5 位，其余对比在本机完成；报告只保留前缀，不保存密码。仅限自查本人凭据。</p>
+  </div>
+  <div class="card">
+    <h2>📧 邮件头分析（钓鱼研判）</h2>
+    <form method="post" action="/triage/email">
+      <textarea name="target" rows="5" placeholder="粘贴邮件的「显示原始邮件 / Show original」内容" required></textarea>
+      <label class="muted"><input type="checkbox" name="no_save"> 不落档</label>
+      <button>分析</button>
+    </form>
+    <p class="field-hint">解析 SPF/DKIM/DMARC 认证链、发件域一致性、Received 路径与可疑链接。</p>
+  </div>
+</div>
+{% endblock %}

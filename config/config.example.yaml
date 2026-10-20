@@ -1,0 +1,31 @@
+# 复制为 config/config.yaml 使用（该文件已被 .gitignore 排除，永不进仓库）
+# 可选代理（本机代理/加速器端口），留空则直连
+proxy: ""
+# 单请求超时（秒）
+timeout: 8
+# 案件落档目录
+cases_dir: "./cases"
+
+# 威胁情报 API（P1 启用；留空则跳过对应源）
+intel:
+  virustotal_key: ""
+  abuseipdb_key: ""
+  ipinfo_token: ""
+
+# AI 辅助研判（OpenAI 兼容接口；留空则隐藏 AI 功能）
+ai:
+  provider: "deepseek"
+  base_url: "https://api.deepseek.com"
+  model: "deepseek-chat"
+  api_key: ""
+
+# 持续监控与告警（可选）
+monitor:
+  enabled: false            # 工作台运行期间每 N 小时自动巡检一次
+  interval_hours: 12
+  blocklist_refresh_hours: 24  # 巡检时若封堵清单超过 N 小时未更新则自动刷新
+  digest_hour: 9            # 每天 9 点后自动生成每日摘要（-1 关闭）
+  notify_min_severity: "high"  # 发现推送阈值：info|low|medium|high|critical
+  notify_on_patrol: true    # 巡检完成后推送摘要
+  webhook_style: "generic"  # generic | feishu | slack
+  webhook_url: ""           # 留空则不发通知，只在本机记录

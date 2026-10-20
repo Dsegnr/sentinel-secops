@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>基线明细</h1>
+{% if not name or not data %}
+<div class="banner warn">还没有体检基线：回 <a href="/">总览</a> 点「立即跑一次体检」（约 1 分钟）。</div>
+{% else %}
+<p class="muted">
+  最新基线 <span class="mono">{{ name }}</span>（{{ data.capturedAt or '-' }}）
+  · <a href="/posture/export">下载 JSON</a>
+  {% if prev_name %}· <a href="/posture/export?file={{ prev_name | urlencode }}">下载上一版</a>{% endif %}
+  · <a href="/hardening">生成加固脚本 →</a>
+</p>
+<form method="post" action="/guard/run" class="actions"><button>立即重新体检</button></form>
+
+{% if issues %}
+<h2>待加固项（{{ issues | length }}）</h2>
+<ul class="tight">{% for i in issues %}<li>{{ i }}</li>{% endfor %}</ul>
+{% else %}
+<p class="muted">✔ 未发现明显待加固项。</p>
+{% endif %}
+
+<h2>加固状态</h2>
+<table class="table">
+  <tbody>
+    <tr><td>RDP 远程桌面</td><td>{{ stats.rdp }}</td><td class="muted">disabled 为安全默认</td></tr>
+    <tr><td>SMBv1</td><td>{{ stats.smb1 }}</td><td class="muted">disabled 为安全默认</td></tr>
+    <tr><td>LLMNR</td><td>{% if stats.llmnr.endswith('=0') %}已禁用{% else %}{{ stats.llmnr }}{% endif %}</td><td class="muted">局域网名称解析投毒面</td></tr>
+    <tr><td>NetBIOS over TCP/IP</td><td>{{ stats.netbios_on }}/{{ stats.netbios_total }} 个网卡开启</td><td class="muted">=0 表示默认开启</td></tr>
+    <tr><td>系统代理</td><td class="mono">{{ stats.proxy }}</td><td class="muted">加速器 / 代理软件会写这里</td></tr>
+    <tr><td>防火墙</td><td colspan="2" class="mono">{% for f in data.firewall or [] %}{{ f }}{% if not loop.last %}<br>{% endif %}{% endfor %}</td></tr>
+    <tr><td>本地管理员</td><td colspan="2" class="mono">{{ (data.admins or []) | join('、') }}</td></tr>
+  </tbody>
+</table>
+
+<h2>与上一版对比{% if prev_name %}（vs {{ prev_name }}）{% endif %}</h2>
+{% if prev_name is none %}
+<p class="muted">首次基线，暂无可对比版本。下次体检后这里会显示端口 / 计划任务 / 启动项 / 证书 / 加固状态等字段的变化。</p>
+{% elif diff is none %}
+<p class="muted">上一版解析失败，无法对比。</p>
+{% elif not diff %}
+<p class="muted">与上一版一致（全部对比字段无变化）。</p>
+{% else %}
+<table class="table">
+  <thead><tr><th>字段</th><th>新增</th><th>移除</th></tr></thead>
+  <tbody>
+    {% for key, item in diff.items() %}
+    <tr>
+      <td>{{ key }}</td>
+      <td class="mono">{% for x in item.added %}+ {{ x }}<br>{% endfor %}</td>
+      <td class="mono">{% for x in item.removed %}- {{ x }}<br>{% endfor %}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<h2>全接口监听端口（{{ (data.ports or []) | length }}）</h2>
+<table class="table">
+  <tbody>
+    {% for p in data.ports or [] %}{% set parts = p.split('|') %}
+    <tr><td style="width:90px" class="mono">{{ parts[0] }}</td><td>{{ parts[1] if parts | length > 1 else '-' }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>hosts（{{ (data.hosts or []) | length }} 条{% if data.hostsOther %}，非回环 {{ (data.hostsOther or []) | length }} 条{% endif %}）</h2>
+{% if data.hostsOther %}
+<div class="banner warn">非回环映射需人工核对：<div class="mono">{% for h in data.hostsOther %}{{ h }}<br>{% endfor %}</div></div>
+{% else %}
+<p class="muted">全部为回环映射（127.0.0.1 / ::1）。</p>
+{% endif %}
+
+<h2>计划任务（非微软，{{ (data.tasks or []) | length }}）</h2>
+<div class="card"><div class="mono" style="font-size:12.5px; max-height:260px; overflow:auto">{% for t in data.tasks or [] %}{{ t }}<br>{% endfor %}</div></div>
+
+<h2>自启动项（{{ (data.autoruns or []) | length }}）</h2>
+<div class="card"><div class="mono" style="font-size:12.5px; max-height:260px; overflow:auto">{% for a in data.autoruns or [] %}{{ a }}<br>{% endfor %}</div></div>
+
+<h2>根证书（{{ (data.certs or []) | length }} 张，展示前 15）</h2>
+<div class="card"><div class="mono" style="font-size:12.5px; max-height:260px; overflow:auto">{% for c in (data.certs or [])[:15] %}{{ c }}<br>{% endfor %}</div></div>
+{% endif %}
+{% endblock %}

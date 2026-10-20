@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>批量研判</h1>
+<p class="muted">
+  一行一个目标（最多 200 条；空行与 <span class="mono"># 注释</span> 会忽略）。
+  提交后在「任务队列」逐条执行：自动落档案件；命中明确风险的条目自动登记「发现」，并关联资产台账。
+</p>
+{% if error %}<div class="banner bad">请选择类型并至少填写一个目标。</div>{% endif %}
+
+<div class="card">
+  <form method="post" action="/batch">
+    <select name="kind">
+      <option value="ip">可疑 IP（推荐）</option>
+      <option value="domain">域名</option>
+      <option value="url">URL</option>
+      <option value="phone">电话号码</option>
+      <option value="user">用户名</option>
+      <option value="mailbox">邮箱地址</option>
+    </select>
+    <textarea name="targets" rows="10" placeholder="# 每行一个目标&#10;8.8.8.8&#10;example.com&#10;+8613800138000" required></textarea>
+    <div class="actions" style="margin-bottom:0">
+      <button>提交批量任务</button>
+      <span class="muted">任务按提交顺序串行执行，可随时到任务队列看逐条日志。</span>
+    </div>
+  </form>
+</div>
+
+<h2>风险自动登记规则（保守，宁缺勿假）</h2>
+<ul class="tight muted">
+  <li>IP：命中封堵清单（high）/ 已知 CVE / DShield、blocklist.de 攻击记录（medium）。</li>
+  <li>URL：≥3 项风险特征（medium）；1-2 项（low）。</li>
+  <li>域名：体检评级 C（low）/ D（medium）。</li>
+  <li>邮箱：一次性邮箱 / 邮箱域不存在（low）。</li>
+  <li>电话 / 用户名：不自动登记（缺可靠风险信号），只出报告。</li>
+</ul>
+{% endblock %}

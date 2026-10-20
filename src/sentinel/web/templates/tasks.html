@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>任务队列（动作编排）</h1>
+<p class="muted">把"主机体检 → 威胁研判 → 打包综合报告"串成一条链，一键执行；任务在本机后台串行跑，完成后自动落档。</p>
+{% if error == 'empty' %}<div class="banner bad">请至少勾选"主机体检"，或选择一种研判并填写目标。</div>{% endif %}
+
+<div class="card">
+  <h2>新建一键巡检</h2>
+  <form method="post" action="/tasks/patrol">
+    <label class="muted"><input type="checkbox" name="posture" checked> 步骤①：主机体检（-Baseline 基线 + 与上次对比）</label>
+    <label class="muted"><input type="checkbox" name="ai" checked> 步骤③：AI 解读（DeepSeek 综述 + 防守建议）</label>
+    <div class="row">
+      <select name="kind">
+        <option value="">（步骤②：不研判）</option>
+        <option value="ip">可疑 IP</option>
+        <option value="phone">骚扰电话</option>
+        <option value="user">社交足迹</option>
+        <option value="domain">域名体检</option>
+        <option value="url">URL 安检</option>
+      </select>
+      <input name="target" placeholder="步骤②目标（可留空）" style="flex:1">
+    </div>
+    <p class="muted">步骤④：自动把体检摘要 + 研判报告 + AI 解读打包成综合报告（含 SHA-256 证据清单）。</p>
+    <button>加入队列并开始</button>
+  </form>
+</div>
+
+<h2>任务列表</h2>
+<table class="table">
+  <thead><tr><th>任务</th><th>状态</th><th>创建</th><th>完成</th><th>结果 / 日志</th></tr></thead>
+  <tbody>
+    {% for t in tasks %}
+    <tr>
+      <td>{{ t.title }}<div class="muted mono">{{ t.id }}</div></td>
+      <td>
+        {% if t.status == 'done' %}<span class="badge ok">完成</span>
+        {% elif t.status == 'failed' %}<span class="badge bad">失败</span>
+        {% elif t.status == 'running' %}<span class="badge">运行中…</span>
+        {% else %}<span class="badge">排队中</span>{% endif %}
+      </td>
+      <td class="muted">{{ t.created }}</td>
+      <td class="muted">{{ t.finished or '—' }}</td>
+      <td>
+        {% if t.result %}<div class="mono">{{ t.result }}</div>{% endif %}
+        {% if t.log %}<details><summary class="muted">日志（{{ t.log | length }} 行）</summary><pre class="log">{{ t.log | join('\n') }}</pre></details>{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% if tasks and tasks[0].status in ('running', 'queued') %}<script>setTimeout(function(){ location.reload(); }, 4000);</script>{% endif %}
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>主机加固</h1>
+<p class="muted">
+  基于最近一次体检基线生成 PowerShell 加固脚本。脚本<b>默认预览</b>（不修改任何配置），加 <span class="mono">-Apply</span> 才执行，
+  <span class="mono">-Undo -Apply</span> 可撤销。工作台本身不会自动执行、不会写注册表。
+</p>
+
+{% if not baseline_name %}
+<div class="banner warn">还没有体检基线：先到 <a href="/">总览</a> 点「立即跑一次体检」（约 1 分钟）。</div>
+{% else %}
+<p class="muted">基线：<span class="mono">{{ baseline_name }}</span></p>
+
+<h2>加固项清单</h2>
+<table class="table">
+  <thead><tr><th>项目</th><th>状态</th><th>说明</th></tr></thead>
+  <tbody>
+    {% for a in actions %}
+    <tr>
+      <td>{{ a.title }}</td>
+      <td>{% if a.active %}<span class="badge bad">待加固</span>{% else %}<span class="badge ok">已达标</span>{% endif %}</td>
+      <td class="muted">{{ a.detail }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<p><a class="btn" href="/hardening/script">⬇️ 下载加固脚本 sentinel-hardening.ps1</a></p>
+
+<h2>执行方式（管理员 PowerShell）</h2>
+<div class="card">
+  <p class="mono">.\\sentinel-hardening.ps1            # 预览：只打印将要做什么</p>
+  <p class="mono">.\\sentinel-hardening.ps1 -Apply     # 执行加固</p>
+  <p class="mono">.\\sentinel-hardening.ps1 -Undo -Apply   # 撤销加固</p>
+</div>
+
+<h2>说明与边界</h2>
+<ul class="tight muted">
+  <li>只做最小改动：LLMNR 策略值 / 逐网卡 NetBIOS 开关 /（如适用）RDP、SMBv1 开关；每步单独打印、单独报错。</li>
+  <li>-Apply 前脚本会自检管理员权限；非管理员会直接退出，不会做半截修改。</li>
+  <li>NetBIOS 的网卡清单在生成脚本时固化，撤销时目标一致；执行后建议回工作台重新体检确认。</li>
+  <li>加固属于"降低攻击面"，不是一次性任务——基线字段变化时巡检会再次提醒。</li>
+</ul>
+{% endif %}
+{% endblock %}

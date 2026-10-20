@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>数据源健康</h1>
+<p class="muted">逐个探活工作台运行时依赖的公开源（含延迟与响应摘要）。检测在任务队列后台执行，约 10-60 秒。</p>
+
+{% if started == '1' %}<div class="banner ok">检测任务已提交，稍后刷新本页查看结果。</div>{% endif %}
+{% if started == '2' %}<div class="banner warn">已有一个检测在运行中，完成后刷新本页查看最新结果。</div>{% endif %}
+{% if running %}<div class="banner warn">检测正在运行中，完成后刷新本页即可看到最新结果。</div>{% endif %}
+
+<p><form method="post" action="/sources/run"><button>运行数据源检测</button></form></p>
+
+{% if health %}
+<p class="muted">最近检测：{{ health.when }} · <b>{{ health.ok }}/{{ health.total }}</b> 可用</p>
+<table class="table">
+  <thead><tr><th>数据源</th><th>状态</th><th>耗时</th><th>响应摘要 / 错误</th></tr></thead>
+  <tbody>
+    {% for r in health.results %}
+    <tr>
+      <td>{{ r.name }}</td>
+      <td>{% if r.ok %}<span class="badge ok">OK</span>{% else %}<span class="badge bad">FAIL</span>{% endif %}</td>
+      <td class="muted">{{ r.ms }}ms</td>
+      <td class="muted mono">{{ (r.error or r.sample or '')[:120] }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="muted">还没有检测结果。点上方按钮运行一次，或命令行执行 <span class="mono">sentinel sources</span>。</p>
+{% endif %}
+
+<h2>说明</h2>
+<ul class="tight muted">
+  <li>FAIL 只代表"当前不可达"，研判时该源会如实标记失败，不影响其它源；网络环境（加速器 / 出口线路）变化后可重测。</li>
+  <li>本机实测：DoH 全系列不可达 → DNS 一律走系统解析（dnspython）；crt.sh 502 → 子域发现用 CertSpotter / HackerTarget。</li>
+  <li>清单类源（FireHOL / Spamhaus）只读前 300 字节判活；完整下载请到「封堵清单」页更新。</li>
+</ul>
+{% endblock %}

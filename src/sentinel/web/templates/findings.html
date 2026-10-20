@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>发现管理</h1>
+<p class="muted">从"证据包"到"管理平台"：每条发现跟踪 严重性 → 状态 → 处理备注，可关联案件与资产。</p>
+
+<div class="card">
+  <h2>新建发现</h2>
+  <form method="post" action="/findings/new">
+    <input name="title" placeholder="发现标题，如：局域网设备可达本机 MySQL" required>
+    <div class="row">
+      <select name="severity">{% for s in severities %}<option value="{{ s }}">{{ s }}</option>{% endfor %}</select>
+      <input name="asset_value" placeholder="资产值（可选，如 8.8.8.8 / example.com）">
+      <select name="asset_type">{% for t in ["ip", "domain", "phone", "host", "account", "other"] %}<option value="{{ t }}">{{ t }}</option>{% endfor %}</select>
+    </div>
+    <textarea name="detail" rows="2" placeholder="描述（可选）"></textarea>
+    <button>创建</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>导入扫描结果（授权项目）</h2>
+  <form method="post" action="/findings/import">
+    <input name="path" placeholder="本地结果文件路径（如 D:\scan\results.jsonl）" required>
+    <div class="row">
+      <select name="format"><option value="auto">自动识别</option><option value="nuclei">nuclei JSONL</option><option value="csv">通用 CSV</option></select>
+      <button>导入</button>
+    </div>
+  </form>
+  <p class="muted">支持 nuclei -jsonl 输出与 CSV（title,severity,target,detail）。仅导入已授权的扫描结果。</p>
+</div>
+{% if import_error %}<div class="banner bad">{{ import_error }}</div>{% endif %}
+{% if imported is not none %}<div class="banner ok">导入完成：新增 {{ imported }} 条，跳过重复 {{ skipped }} 条。</div>{% endif %}
+
+<form method="get" action="/findings" class="row">
+  <select name="status"><option value="">全部状态</option>{% for s in statuses %}<option value="{{ s }}" {{ 'selected' if filter_status == s else '' }}>{{ s }}</option>{% endfor %}</select>
+  <select name="severity"><option value="">全部严重性</option>{% for s in severities %}<option value="{{ s }}" {{ 'selected' if filter_severity == s else '' }}>{{ s }}</option>{% endfor %}</select>
+  <button>筛选</button>
+</form>
+
+<table class="table">
+  <thead><tr><th>发现</th><th>严重性</th><th>状态</th><th>来源</th><th>关联</th><th>更新时间</th><th>操作</th></tr></thead>
+  <tbody>
+    {% for f in findings %}
+    <tr>
+      <td>
+        {{ f.title }}<div class="muted mono">{{ f.id }}</div>
+        {% if f.detail %}<details><summary class="muted">详情</summary><div class="muted" style="white-space:pre-wrap">{{ f.detail }}</div></details>{% endif %}
+        {% if f.notes %}<details><summary class="muted">备注（{{ f.notes | length }}）</summary>{% for n in f.notes %}<div class="muted">[{{ n.ts }}] {{ n.text }}</div>{% endfor %}</details>{% endif %}
+      </td>
+      <td><span class="badge sev-{{ f.severity }}">{{ f.severity }}</span></td>
+      <td><span class="badge">{{ f.status }}</span></td>
+      <td class="muted">{{ f.source }}</td>
+      <td>{% if f.case %}<a href="/cases/view?name={{ f.case | urlencode }}">案件</a>{% endif %}{% if f.asset %} <a href="/assets/view?id={{ f.asset }}">资产</a>{% endif %}</td>
+      <td class="muted">{{ f.updated_at }}</td>
+      <td>
+        <form method="post" action="/findings/status" class="inline">
+          <input type="hidden" name="fid" value="{{ f.id }}">
+          <select name="status">{% for s in statuses %}<option value="{{ s }}" {{ 'selected' if f.status == s else '' }}>{{ s }}</option>{% endfor %}</select>
+          <button>更新</button>
+        </form>
+        <form method="post" action="/findings/note" class="inline">
+          <input type="hidden" name="fid" value="{{ f.id }}">
+          <input name="text" placeholder="备注">
+          <button>加备注</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

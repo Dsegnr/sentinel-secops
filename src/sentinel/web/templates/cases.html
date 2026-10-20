@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>案件库</h1>
+<p class="muted">每个案件 = 一次研判的完整存证（报告 + 原始数据 + SHA-256 证据清单），可用于举报 / 报案材料。</p>
+{% if msg %}<div class="banner ok">{{ msg }}</div>{% endif %}
+<form method="get" action="/cases" class="searchbar">
+  <input name="q" value="{{ q }}" placeholder="按案件名 / 目标检索，如 8.8.8.8 或 example.com">
+  <select name="kind" style="flex:0 0 150px; margin:0">
+    <option value="">全部类型</option>
+    {% for k in kinds %}
+    <option value="{{ k }}" {{ 'selected' if k == kind else '' }}>{{ k }}</option>
+    {% endfor %}
+  </select>
+  <button>检索</button>
+  {% if q or kind %}<a class="btn alt" href="/cases">清除</a>{% endif %}
+</form>
+<p class="muted">{% if q or kind %}筛选结果：{{ total }} 条（全部 {{ all_count }} 条）{% if content_count %} · 正文命中 {{ content_count }} 条{% endif %}{% else %}共 {{ all_count }} 条{% endif %}{% if total > 200 %} · 仅显示前 200 条，请用检索缩小范围{% endif %} · 归档 {{ archived_count }} 条 <a href="/cases/archived">归档库 →</a></p>
+<form method="post" action="/cases/pack">
+<table class="table nowrap">
+  <thead><tr><th style="width:34px"><input type="checkbox" id="check-all" title="全选"></th><th>案件</th><th>类型</th><th>目标</th><th>时间</th><th>证据清单</th><th></th></tr></thead>
+  <tbody>
+    {% for c in cases %}
+    <tr>
+      <td><input type="checkbox" name="names" value="{{ c.name }}"></td>
+      <td class="mono">{{ c.name }}</td>
+      <td>{{ c.kind }}</td>
+      <td>{{ c.target }}</td>
+      <td class="muted">{{ c.created }}</td>
+      <td>
+        {% if c.ok is none %}<span class="badge">-</span>
+        {% elif c.ok %}<span class="badge ok">校验通过</span>
+        {% else %}<span class="badge bad">校验失败</span>{% endif %}
+      </td>
+      <td><a href="/cases/view?name={{ c.name | urlencode }}">查看</a></td>
+    </tr>
+    {% if c.snippet %}<tr><td></td><td colspan="6" class="snippet muted">…{{ c.snippet }}…</td></tr>{% endif %}
+    {% endfor %}
+  </tbody>
+</table>
+<div class="actions">
+  <select name="template" style="flex:0 0 170px; margin:0">
+    <option value="standard">标准版报告</option>
+    <option value="brief">简报版</option>
+    <option value="evidence">证据版</option>
+  </select>
+  <button>📦 打包选中导出 (.zip)</button>
+  <a class="btn alt" href="/cases/pack">打包全部 →</a>
+  <button class="copy" formaction="/cases/manage" name="action" value="archive" onclick="return confirm('归档选中的案件？可在「归档库」恢复。')">🗄 归档选中（可恢复）</button>
+  <span class="muted">包内含：索引 index.html + 每案 HTML/Markdown/JSON/证据清单（最多 100 个案件）</span>
+</div>
+</form>
+{% if not cases %}
+<div class="banner warn">没有匹配的案件。</div>
+{% endif %}
+<script>
+document.getElementById('check-all').addEventListener('change', function (event) {
+  document.querySelectorAll('input[name="names"]').forEach(function (box) { box.checked = event.target.checked; });
+});
+</script>
+{% endblock %}

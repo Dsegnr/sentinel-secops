@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block content %}
+{% if guard == 'started' %}<div class="banner ok">巡检已在后台启动，约 1 分钟后刷新本页查看新基线。</div>{% endif %}
+{% if guard == 'error' %}<div class="banner bad">巡检启动失败，请检查 pwsh 是否可用。</div>{% endif %}
+{% if guard == 'missing' %}<div class="banner bad">找不到 checks/posture_windows.ps1。</div>{% endif %}
+{% if alerts %}
+<div class="banner bad">⚠️ 有 {{ alert_count }} 条中危及以上待处理发现：{% for a in alerts %}{{ a.title }}（{{ a.severity }}）{% if not loop.last %} · {% endif %}{% endfor %}{% if alert_count > alerts | length %} …{% endif %} —— <a href="/findings">去处理 →</a></div>
+{% endif %}
+{% if stale_days is not none and stale_days >= 3 %}
+<div class="banner warn">🧱 封堵清单已 {{ stale_days }} 天未更新（公益清单持续变化）—— <a href="/blocklist">去更新 →</a></div>
+{% endif %}
+
+<h1>总览</h1>
+<div class="kpis">
+  <div class="kpi"><div class="num">{{ case_count }}</div><div class="lbl">案件总数</div></div>
+  <div class="kpi {{ 'bad' if alert_count else 'ok' }}"><div class="num">{{ alert_count }}</div><div class="lbl">中危以上待处理</div></div>
+  <div class="kpi"><div class="num">{{ findings.open }}</div><div class="lbl">待处理发现</div></div>
+  <div class="kpi"><div class="num">{{ asset_count }}</div><div class="lbl">资产台账</div></div>
+  <div class="kpi"><div class="num">{{ blocklist | sum(attribute='count') }}</div><div class="lbl">本地封堵网段</div></div>
+</div>
+
+<div class="grid-2">
+  <div class="stack">
+    <div class="card">
+      <h2>🛡 Guard · 主机体检</h2>
+      {% if baseline %}
+        <p>最近基线：<b>{{ baseline.capturedAt or baseline.file }}</b></p>
+        <p class="muted">hosts {{ baseline.hosts }} · 根证书 {{ baseline.certs }} · 全接口端口 {{ baseline.ports }} · 计划任务 {{ baseline.tasks }} · 启动项 {{ baseline.autoruns }}</p>
+        <p class="muted">RDP {{ baseline.rdp }} · SMB1 {{ baseline.smb1 }} · NetBIOS 开启 {{ baseline.netbios_on }}/{{ baseline.netbios_total }} · LLMNR {{ baseline.llmnr }}</p>
+        <p class="muted"><a href="/posture">查看基线明细 →</a></p>
+        {% if baseline.av %}<p class="muted">防护组件：{{ baseline.av | join('、') }}</p>{% endif %}
+        {% if baseline.issues %}
+        <p class="muted" style="margin-bottom:2px">待加固项（{{ baseline.issues | length }}）：</p>
+        <ul class="tight muted">{% for i in baseline.issues[:6] %}<li>{{ i }}</li>{% endfor %}</ul>
+        <p><a class="btn alt" href="/hardening">生成加固脚本（预览执行 / 可撤销）→</a></p>
+        {% else %}
+        <p class="muted">✔ 未发现明显待加固项</p>
+        {% endif %}
+      {% else %}
+        <p class="muted">还没有基线快照，先跑一次体检（约 1 分钟）。</p>
+      {% endif %}
+      <form method="post" action="/guard/run"><button>立即跑一次体检</button></form>
+      <p class="field-hint">体检内容：hosts 异常项、根证书、全接口监听端口、计划任务、防护软件识别；两次基线自动对比。</p>
+    </div>
+
+    <div class="card">
+      <h2>🗂 最近案件</h2>
+      {% if cases %}
+      <ul class="list">
+        {% for c in cases %}
+        <li><a href="/cases/view?name={{ c.name | urlencode }}">{{ c.kind }} · {{ c.target }}</a> <span class="muted">· {{ c.created }} · 完整性 {{ 'OK' if c.ok else ('FAIL' if c.ok is not none else '-') }}</span></li>
+        {% endfor %}
+      </ul>
+      <p><a href="/cases">全部案件 →</a></p>
+      {% else %}
+      <p class="muted">还没有案件。去 <a href="/triage">一键研判</a> 生成第一个。</p>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <h2>⚙️ 最近任务</h2>
+      {% if tasks_recent %}
+      <ul class="list">
+        {% for t in tasks_recent %}
+        <li>{{ t.title }} <span class="badge {{ 'ok' if t.status == 'done' else ('bad' if t.status == 'failed' else '') }}">{{ t.status }}</span> <span class="muted">{{ t.finished or t.created }}</span></li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="muted">队列为空。可在 <a href="/tasks">任务队列</a> 提交「体检 + 研判 + AI 解读」的巡检链。</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="card">
+      <h2>🎯 一键研判</h2>
+      <p class="muted">7 类目标：骚扰电话、可疑 IP、社交足迹、域名体检、URL 安检、密码泄露自查、邮件头分析。</p>
+      <div class="chips">
+        <span class="chip">📞 电话</span><span class="chip">🌐 IP</span><span class="chip">👤 用户名</span>
+        <span class="chip">🏷 域名</span><span class="chip">🔗 URL</span><span class="chip">🔑 泄露自查</span><span class="chip">📧 邮件头</span>
+      </div>
+      <p><a class="btn" href="/triage">去研判 →</a></p>
+    </div>
+
+    <div class="card">
+      <h2>🧱 封堵清单</h2>
+      {% for s in blocklist %}
+      <p class="muted">{{ s.title }}：{% if s.downloaded %}{{ s.count }} 条 · 更新于 {{ s.updated }}{% else %}未下载{% endif %}{% if s.error %} · <span class="badge bad">{{ s.error[:40] }}</span>{% endif %}</p>
+      {% endfor %}
+      <p><a class="btn alt" href="/blocklist">管理 / 查询 / 导出防火墙脚本 →</a></p>
+    </div>
+
+    <div class="card">
+      <h2>📟 系统状态</h2>
+      <ul class="list">
+        <li>AI 解读：{% if ai_ready %}<span class="badge ok">已配置</span>{% else %}<span class="badge">未配置</span> <span class="muted">（config/config.yaml → ai.api_key）</span>{% endif %}</li>
+        <li>定时巡检：{% if monitor and monitor.enabled %}<span class="badge ok">每 {{ monitor.interval_hours }} 小时</span>{% else %}<span class="badge">未开启</span>{% endif %}</li>
+        <li>数据源健康：{% if health %}<span class="badge {{ 'ok' if health.ok == health.total else 'bad' }}">{{ health.ok }}/{{ health.total }}</span> <span class="muted">{{ health.when }}</span>{% else %}<span class="badge">未检测</span>{% endif %} <a href="/sources">详情 →</a></li>
+        <li>每日摘要：{% if digest_when %}<span class="muted">{{ digest_when | replace('T', ' ') }}</span>{% else %}<span class="badge">未生成</span>{% endif %} <a href="/digest">查看 →</a></li>
+        <li>知识库：{{ kb_groups | length }} 个分类</li>
+        <li>发现分布：{% for sev, n in findings.by_severity.items() %}<span class="badge sev-{{ sev }}">{{ sev }} {{ n }}</span> {% endfor %}{% if not findings.by_severity %}<span class="muted">暂无</span>{% endif %}</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

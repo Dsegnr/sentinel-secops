@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>工具目录</h1>
+<p class="muted">启动器：一键复制「安装 / 示例」命令。标注「授权场景」的工具仅限授权目标、靶场或参与的项目使用。</p>
+
+{% if tool_groups %}
+<h2>🚀 启动器</h2>
+{% for cat, items in tool_groups.items() %}
+<h3>{{ cat }}</h3>
+<table class="table">
+  <thead><tr><th>工具</th><th>说明</th><th>安装 / 示例</th></tr></thead>
+  <tbody>
+    {% for t in items %}
+    <tr>
+      <td>
+        <a href="{{ t.repo }}" target="_blank" rel="noreferrer">{{ t.name }}</a>
+        {% if t.boundary == 'authorized' %}<span class="badge sev-high">授权场景</span>{% else %}<span class="badge ok">通用/防御</span>{% endif %}
+      </td>
+      <td class="muted">{{ t.description }}</td>
+      <td>
+        {% if t.install %}<div><span class="cmd mono">{{ t.install }}</span> <button class="copy" data-cmd="{{ t.install }}">复制</button></div>{% endif %}
+        {% if t.run %}<div><span class="cmd mono">{{ t.run }}</span> <button class="copy" data-cmd="{{ t.run }}">复制</button></div>{% endif %}
+        {% if not t.install and not t.run %}<span class="muted">见仓库 README</span>{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endfor %}
+<script>
+document.querySelectorAll('.copy').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    navigator.clipboard.writeText(btn.dataset.cmd).then(function () {
+      btn.textContent = '已复制 ✓';
+      setTimeout(function () { btn.textContent = '复制'; }, 1500);
+    });
+  });
+});
+</script>
+{% else %}
+<p class="muted">还没有启动器清单（kb/tools/toolbox.yaml）。</p>
+{% endif %}
+
+<h2>📚 完整目录（catalog.md）</h2>
+<article class="doc">{{ body | safe }}</article>
+{% if others %}
+<h2>存档清单</h2>
+<ul class="list">
+  {% for o in others %}<li><a href="/kb/view?path={{ o.rel | urlencode }}">{{ o.name }}</a></li>{% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

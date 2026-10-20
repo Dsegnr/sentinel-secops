@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sentinel-secops"
+version = "0.1.0"
+description = "Sentinel · 个人安全研判与防御工具链（公开数据源，本地运行）"
+requires-python = ">=3.10"
+dependencies = [
+  "requests>=2.31",
+  "phonenumbers>=8.13",
+  "PyYAML>=6.0",
+  "rich>=13.0",
+  "truststore>=0.9",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+web = [
+  "fastapi>=0.110",
+  "uvicorn>=0.27",
+  "jinja2>=3.1",
+  "markdown>=3.5",
+  "python-multipart>=0.0.9",
+]
+
+[project.scripts]
+sentinel = "sentinel.cli:main"
+sentinel-web = "sentinel.web.app:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+sentinel = ["data/*.yaml", "web/templates/*.html", "web/static/*.css"]

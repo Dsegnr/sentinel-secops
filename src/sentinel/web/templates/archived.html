@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>归档库</h1>
+<p class="muted">归档 = 从案件列表移入 <span class="mono">cases/.archive/</span>，随时可恢复；「永久删除」不可恢复，且只作用于归档内。</p>
+{% if msg %}<div class="banner ok">{{ msg }}</div>{% endif %}
+<p><a href="/cases">← 返回案件库</a></p>
+
+{% if not cases %}
+<p class="muted">归档库为空。</p>
+{% else %}
+<form method="post" action="/cases/restore">
+<table class="table nowrap">
+  <thead><tr><th style="width:34px"><input type="checkbox" id="check-all-archived" title="全选"></th><th>案件</th><th>类型</th><th>目标</th><th>时间</th><th>证据清单</th></tr></thead>
+  <tbody>
+    {% for c in cases %}
+    <tr>
+      <td><input type="checkbox" name="names" value="{{ c.name }}"></td>
+      <td class="mono">{{ c.name }}</td>
+      <td>{{ c.kind }}</td>
+      <td>{{ c.target }}</td>
+      <td class="muted">{{ c.created }}</td>
+      <td>
+        {% if c.ok is none %}<span class="badge">-</span>
+        {% elif c.ok %}<span class="badge ok">校验通过</span>
+        {% else %}<span class="badge bad">校验失败</span>{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div class="actions">
+  <button>♻ 恢复选中</button>
+  <label class="inline muted" style="margin:0"><input type="checkbox" name="confirm" value="DELETE"> 确认删除不可恢复</label>
+  <button class="copy" formaction="/cases/delete" onclick="return confirm('将永久删除选中的归档案件，确定吗？')">🗑 永久删除选中</button>
+  <span class="muted">共 {{ cases | length }} 个归档案件</span>
+</div>
+</form>
+<script>
+document.getElementById('check-all-archived').addEventListener('change', function (event) {
+  document.querySelectorAll('input[name="names"]').forEach(function (box) { box.checked = event.target.checked; });
+});
+</script>
+{% endif %}
+{% endblock %}
